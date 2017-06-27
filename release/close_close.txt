@@ -1,0 +1,126 @@
+var close_id = #ID;
+
+var close_log = [];
+var close_result = "unknown";
+var close_timeouted = 0;
+var close_balance;
+
+function close_positions() { if( GlobalDs.OpenPositions.GetOpenPositionsOfInstrument(close_id)._keys ) return GlobalDs.OpenPositions.GetOpenPositionsOfInstrument(close_id)._keys.length; else return 0; }
+
+function close_isClosed(){
+if( close_positions() == 0 ) 
+{
+     close_log.push('Instrument closed');
+     close_log.push(close_timeouted*500);
+     close_timeouted = 0;
+     close_result = "success";
+     $( 'div[data-instrument-id=' + parseInt(431) + ']' ).click();
+}
+else
+{
+     close_timeouted++;
+     if(close_timeouted < 16) setTimeout( close_isClosed, 500);
+     else { close_log.push('timeouted at isClosed()'); close_result = "timeout"; $( 'div[data-instrument-id=' + parseInt(431) + ']' ).click(); }
+}
+}
+function close_isCloseButtonActive(){
+if( typeof $( 'div[id=\"load-sidebar\"] div.sidebar-action > div.action > button' ).attr('disabled') == 'undefined' )
+{
+    close_log.push('Close button active');
+    close_log.push(200+close_timeouted*200);
+	close_balance = $( 'div[data-instrument-id=' + parseInt(close_id) + '] div.positions >> :eq(0) > :eq(0) > :eq(2) > :eq(1)' ).text();
+    close_timeouted = 0;
+    $( 'div[id=\"load-sidebar\"] div.sidebar-action > div.action > button' ).click();
+    close_isClosed();
+}
+else
+{
+    close_timeouted++;
+    if(close_timeouted < 14) setTimeout( close_isCloseButtonActive, 200);
+    else { close_log.push('timeouted at isCloseButtonActive()'); close_result = "timeout"; $( 'div[data-instrument-id=' + parseInt(431) + ']' ).click(); }
+}
+}
+
+function close_isCloseButton(){
+if( typeof $( 'div[id=\"load-sidebar\"] div.sidebar-action > div.action > button' ).val() != 'undefined' )
+{
+    close_log.push('Close button prepared');
+    close_log.push(close_timeouted*200);
+    close_timeouted = 0;
+    setTimeout( close_isCloseButtonActive, 200);
+}
+else
+{
+    close_timeouted++;
+    if(close_timeouted < 14) setTimeout( close_isCloseButton, 200);
+    else { close_log.push('timeouted at isCloseButton()'); close_result = "timeout"; $( 'div[data-instrument-id=' + parseInt(431) + ']' ).click(); }
+}
+}
+
+function close_isCloseActive(){
+if( typeof $( 'div[id=\"openPositionDetails\"] div.info-buttons > :eq(1)' ).children().attr('disabled') == 'undefined' )
+{
+     close_log.push('Close dialog button active');
+     close_log.push(200+close_timeouted*200);
+     close_timeouted = 0;
+     $( 'div[id=\"openPositionDetails\"] div.info-buttons > :eq(1)' ).bind('click',GlobalDs.OpenPositions.OpenPositionsMap[GlobalDs.OpenPositions.SelectedOpenPosition].ClosePositionLinkClickEventHandler).click();
+     close_isCloseButton();
+}
+else
+{
+     close_timeouted++;
+     if(close_timeouted < 14) setTimeout( close_isCloseActive, 200);
+     else { close_log.push('timeouted at isCloseActive()'); close_result = "timeout"; $( 'div[data-instrument-id=' + parseInt(431) + ']' ).click(); }
+}
+}
+function close_isCloseExist(){
+if( $('div[id=\"openPositionDetails\"] > :eq(3) > :eq(1) >').text() == "Zamknij pozycjê" )
+{
+     close_log.push('Close button exists');
+     close_log.push(close_timeouted*200);
+     close_timeouted = 0;
+     setTimeout( close_isCloseActive, 200);
+}
+else
+{
+     close_timeouted++;
+     if(close_timeouted < 15) setTimeout( close_isCloseExist, 200);
+     else { close_log.push('timeouted at isCloseExist()'); close_result = "timeout"; $( 'div[data-instrument-id=' + parseInt(431) + ']' ).click(); }
+}
+}
+function close_isClose(){
+if( typeof $( 'div[class=\"wrap sidebar-open\"]' ).val() != 'undefined' )
+{
+     close_log.push('Close bar openned');
+     close_log.push(close_timeouted*400);
+     close_timeouted = 0;
+     setTimeout( close_isCloseExist, 200);
+} 
+else 
+{
+     close_timeouted++;
+     $( 'button[id=\"toggle-sidebar\"]' ).click();
+     if(close_timeouted < 8) setTimeout( close_isClose, 400);
+     else { close_log.push('timeouted at isClose()'); close_result = "timeout"; $( 'div[data-instrument-id=' + parseInt(431) + ']' ).click(); }
+}
+}
+
+function close_close() { 
+if( close_positions() == 0 ) { close_log.push('No open positions'); close_result = "break"; return 1; }
+if( GlobalDs.Instruments.SelectedInstrument == close_id )
+{
+      close_log.push('Instrument selected');
+      close_log.push(close_timeouted*300);
+      close_timeouted = 0;
+      close_isClose();
+}
+else  
+{
+      close_timeouted++;
+      $( 'div[data-instrument-id=' + parseInt(close_id) + '] div.positions >> :eq(0)' ).click();
+      if(close_timeouted < 10) setTimeout( close_close, 300);
+      else { close_log.push('timeouted at close()'); close_result = "timeout"; $( 'div[data-instrument-id=' + parseInt(431) + ']' ).click(); }
+}
+return 0;
+} 
+close_close();

@@ -1,0 +1,15 @@
+var a = [];
+function isDisabled(instrument){
+if( typeof instrument.children().eq(3).children().attr('disabled') == 'undefined' ) return false; else return true;
+}
+$('div[id=\"instrumentsTable\"]> :eq(1) >').each(function(){
+var arr = [];
+arr.push( $(this).attr('data-instrument-id') );
+arr.push( isDisabled( $(this) ) );
+arr.push( $(this).children().eq(0).children().text() );
+arr.push( $(this).children().eq(2).text() );
+arr.push( $(this).children().eq(4).text() );
+arr.push( $(this).children().eq(9).children().length );
+a.push(arr);
+});
+a;

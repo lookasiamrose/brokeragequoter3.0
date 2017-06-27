@@ -1,0 +1,97 @@
+var open_sell_id = #ID;
+
+var open_sell_log = [];
+var open_sell_result = "unknown";
+var open_sell_value = #QUANTITY;
+var open_sell_timeouted = 0;
+
+function open_sell_positions() { if( GlobalDs.OpenPositions.GetOpenPositionsOfInstrument(open_sell_id)._keys ) return GlobalDs.OpenPositions.GetOpenPositionsOfInstrument(open_sell_id)._keys.length; else return 0; }
+function open_sell_isBought(){
+if( open_sell_positions() > 0 )
+{
+     open_sell_log.push('Bought operation fulfilled');
+     open_sell_log.push(open_sell_timeouted*500);
+     open_sell_timeouted = 0;
+     $( 'div[data-instrument-id=' + parseInt(431) + ']' ).click();
+     open_sell_result = "success";
+}
+else
+{
+     open_sell_timeouted++;
+     if(open_sell_timeouted < 15) setTimeout( open_sell_isBought, 500);
+     else { open_sell_log.push('timeouted at isBought()'); open_sell_result = "timeout"; }
+}
+}
+
+function open_sell_isInputEqual(){
+if($( 'input[id=\"amount-input\"]' ).attr('aria-valuenow') == open_sell_value[open_sell_id] )
+{
+     $('button[id=\"trade-button\"]').click();
+     open_sell_log.push('Input value equal');
+     open_sell_log.push(open_sell_timeouted*100);
+     open_sell_timeouted = 0;
+     setTimeout( open_sell_isBought, 500);
+}
+else
+{
+     open_sell_timeouted++;
+     $( 'input[id=\"amount-input\"]' ).val(open_sell_value[open_sell_id]); 
+     $( 'div[class=\"inputs\"] button' ).eq(0).mousedown().mouseup(); 
+     $( 'div[class=\"inputs\"] button' ).eq(1).mousedown().mouseup();
+     if(open_sell_timeouted < 30) setTimeout( open_sell_isInputEqual, 100);
+     else { open_sell_log.push('timeouted at isInputEqual()'); open_sell_result = "timeout"; }
+}
+}
+
+function open_sell_isInput(){
+if( typeof $( 'input[id=\"amount-input\"]' ).val() != 'undefined' )
+{
+     open_sell_log.push('Input openned');
+     open_sell_log.push(open_sell_timeouted*100);
+     open_sell_timeouted = 0;
+     open_sell_isInputEqual();
+}
+else
+{
+     open_sell_timeouted++;
+     $( 'div[id=\"load-sidebar\"] button.info-button-sell.buySellButton' ).bind('click', GlobalDs.Instruments.InstrumentsMap[parseInt(open_sell_id)].BuySellClickEventHandler ).click();
+     if(open_sell_timeouted < 30) setTimeout( open_sell_isInput, 100);
+     else { open_sell_log.push('timeouted at isInput()'); open_sell_result = "timeout"; }
+}
+}
+
+function open_sell_isInfo(){
+if( typeof $( 'div[class=\"wrap sidebar-open\"]' ).val() != 'undefined' )
+{
+     open_sell_log.push('Info bar openned');
+     open_sell_log.push(open_sell_timeouted*100);
+     open_sell_timeouted = 0;
+     open_sell_isInput();
+} 
+else 
+{
+     open_sell_timeouted++;
+     $( 'div[data-instrument-id=' + parseInt(open_sell_id) + '] > div.information > button' ).click();
+     if(open_sell_timeouted < 30) setTimeout( open_sell_isInfo, 100);
+     else { open_sell_log.push('timeouted at isInfo()'); open_sell_result = "timeout"; }
+}
+}
+
+function open_sell_buy() { 
+if(open_sell_positions() > 0) { open_sell_log.push('Position already openned'); open_sell_result = "break"; return 1; }
+if( GlobalDs.Instruments.SelectedInstrument == open_sell_id )
+{
+      open_sell_log.push('Instrument selected');
+      open_sell_log.push(open_sell_timeouted*100);
+      open_sell_timeouted = 0;
+      open_sell_isInfo();
+}
+else  
+{
+      open_sell_timeouted++;
+      $( 'div[data-instrument-id=' + parseInt(open_sell_id) + ']' ).click();
+      if(open_sell_timeouted < 30) setTimeout( open_sell_buy, 100);
+      else { open_sell_log.push('timeouted at buy()'); open_sell_result = "timeout"; }
+}
+} 
+open_sell_buy();
