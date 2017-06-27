@@ -1,0 +1,6 @@
+$("div[id='alertDialogDiv']").find('.win-contentdialog-commands').find('button').get('1').click()
+//That one log you in again when timoutalert apeared
+//HOW TO CHECK -> $("div[id='alertDialogDiv']").find('.win-contentdialog-commands').find('button').get('1').value == ""
+$("div[class='demo-real-buttons']").find('.demo-mode').click()
+//That is chosing demo-mode (50 000zl)
+//HOW TO CHECK -> typeof $("div[class='demo-real-buttons']").value == 'undefined'
